@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexPulse — Enterprise Financial Analytics</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2pdf.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="logo-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="logo-text">
+        <h1>ApexPulse</h1>
+        <span>Enterprise Financial Intelligence</span>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="currency-selector">
+        <i class="fa-solid fa-globe"></i>
+        <select id="currency-select">
+          <option value="USD">USD ($)</option>
+          <option value="EUR">EUR (€)</option>
+          <option value="GBP">GBP (£)</option>
+          <option value="NGN">NGN (₦)</option>
+        </select>
+      </div>
+
+      <button id="theme-toggle-btn" class="btn btn-secondary">
+        <i class="fa-solid fa-moon"></i> <span>Dark Mode</span>
+      </button>
+
+      <button id="export-pdf-btn" class="btn btn-primary">
+        <i class="fa-solid fa-file-pdf"></i> Export PDF Report
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="dashboard-wrapper" id="dashboard-content">
+
+    <!-- Key Performance Indicators (KPI Cards) -->
+    <section class="kpi-grid">
+      <div class="kpi-card revenue-card">
+        <div class="kpi-icon"><i class="fa-solid fa-wallet"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Total Revenue</span>
+          <h2 id="kpi-total-revenue">$0.00</h2>
+          <span class="kpi-trend positive"><i class="fa-solid fa-arrow-up"></i> +14.2% vs last month</span>
+        </div>
+      </div>
+
+      <div class="kpi-card expense-card">
+        <div class="kpi-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Total Expenses</span>
+          <h2 id="kpi-total-expenses">$0.00</h2>
+          <span class="kpi-trend negative"><i class="fa-solid fa-arrow-down"></i> -3.8% efficiency target</span>
+        </div>
+      </div>
+
+      <div class="kpi-card profit-card">
+        <div class="kpi-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">Net Profit</span>
+          <h2 id="kpi-net-profit">$0.00</h2>
+          <span class="kpi-trend positive" id="kpi-margin-text">Margin: 0%</span>
+        </div>
+      </div>
+
+      <div class="kpi-card forecast-card">
+        <div class="kpi-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="kpi-info">
+          <span class="kpi-label">AI Forecasted Growth</span>
+          <h2 id="kpi-forecast">$0.00</h2>
+          <span class="kpi-trend neutral"><i class="fa-solid fa-robot"></i> Predicted Next Month</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Charts Section -->
+    <section class="charts-grid">
+      <div class="chart-card large-chart">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-chart-area"></i> Revenue vs Expenses Trend</h3>
+          <span class="badge">Real-time Data</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card side-chart">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-chart-pie"></i> Expense Allocation</h3>
+          <span class="badge">Breakdown</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="expensePieChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Transaction Management & Data Table -->
+    <section class="data-section">
+      <div class="table-card">
+        <div class="table-header">
+          <div class="title-area">
+            <h3><i class="fa-solid fa-list-check"></i> Financial Records</h3>
+            <p>Manage income entries, operational costs, and business capital movements.</p>
+          </div>
+          <div class="table-actions">
+            <input type="text" id="search-input" placeholder="Search entries..." class="search-field">
+            <select id="type-filter" class="filter-field">
+              <option value="all">All Types</option>
+              <option value="income">Income Only</option>
+              <option value="expense">Expense Only</option>
+            </select>
+            <button id="add-record-btn" class="btn btn-success">
+              <i class="fa-solid fa-plus"></i> Add Entry
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Title / Description</th>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="transaction-table-body">
+              <!-- Dynamically Populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Entry Modal Form -->
+  <div class="modal-overlay" id="record-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">New Financial Entry</h3>
+        <button id="close-modal-btn" class="close-btn">&times;</button>
+      </div>
+
+      <form id="record-form">
+        <input type="hidden" id="record-id">
+
+        <div class="form-group">
+          <label for="record-title">Title / Description *</label>
+          <input type="text" id="record-title" placeholder="e.g. Enterprise Client Retainer" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="record-type">Type *</label>
+            <select id="record-type">
+              <option value="income">Income (+)</option>
+              <option value="expense">Expense (-)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="record-amount">Amount *</label>
+            <input type="number" id="record-amount" step="0.01" min="0.01" placeholder="0.00" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="record-category">Category</label>
+            <select id="record-category">
+              <option value="Sales">Sales & Revenue</option>
+              <option value="Services">Consulting / Services</option>
+              <option value="Marketing">Marketing & Ads</option>
+              <option value="Payroll">Payroll & Salaries</option>
+              <option value="Infrastructure">Servers & Hosting</option>
+              <option value="Office">Office & Supplies</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="record-date">Date *</label>
+            <input type="date" id="record-date" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" id="cancel-modal-btn" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
